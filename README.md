@@ -93,22 +93,13 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f # v1.227.0
         with:
-          ruby-version: 3.0.3
+          ruby-version: 3.4.5
       - name: erb_lint
         uses: codeur/action-erblint@5083efd49634e26645a0736681b618ccc3fb7f14 # v2.19.2
         with:
-          erblint_version: 4.8.2
+          erblint_version: 0.9.0
           reporter: github-pr-review # Default is github-pr-check
 ```
-
-## Sponsor
-
-<p>
-  <a href="https://evrone.com/?utm_source=action-erb_lint">
-    <img src="https://www.mgrachev.com/assets/static/evrone-sponsored-300.png"
-      alt="Sponsored by Evrone" width="210">
-  </a>
-</p>
 
 ## License
 
