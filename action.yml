@@ -8,7 +8,7 @@ inputs:
   erblint_version:
     description: 'erb_lint version'
   erblint_flags:
-    description: 'erb_lint flags. (erb_lint --lint-all)'
+    description: 'erb_lint flags. (erb_lint --lint-all --format compact --allow-no-files)'
     default: ''
   tool_name:
     description: 'Tool name to use for reviewdog reporter'

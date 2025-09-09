@@ -54,7 +54,7 @@ echo '::group:: Running erb_lint with reviewdog 🐶 ...'
 ERBLINT_REPORT_FILE="$TEMP_PATH"/erblint_report
 
 # shellcheck disable=SC2086
-${BUNDLE_EXEC}erb_lint --format compact --allow-no-files ${INPUT_ERBLINT_FLAGS} > "$ERBLINT_REPORT_FILE"
+${BUNDLE_EXEC}erb_lint --lint-all --format compact --allow-no-files ${INPUT_ERBLINT_FLAGS} > "$ERBLINT_REPORT_FILE"
 reviewdog < "$ERBLINT_REPORT_FILE" \
   -efm="%f:%l:%c: %m" \
   -name="${INPUT_TOOL_NAME}" \
