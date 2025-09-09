@@ -1,25 +1,40 @@
-name: 'erb_lint with reviewdog'
-description: '🐶 Run erb-lint with reviewdog on pull requests to improve code review experience.'
+name: 'Run erb_lint with reviewdog'
+description: '🐶 Run erb_lint with reviewdog on pull requests to improve code review experience.'
 author: 'WizardHealth'
 inputs:
   github_token:
     description: 'GITHUB_TOKEN'
     default: ${{ github.token }}
   erblint_version:
-    description: 'erb-lint version'
+    description: 'erb_lint version'
+  erblint_flags:
+    description: 'erb_lint flags. (erb_lint --lint-all)'
+    default: ''
+  tool_name:
+    description: 'Tool name to use for reviewdog reporter'
+    default: 'erb_lint'
   level:
     description: 'Report level for reviewdog [info,warning,error]'
     default: 'error'
   reporter:
     description: |
-      Reporter of reviewdog command [github-pr-check,github-check,github-pr-review].
-      Default is github-pr-review.
-    default: 'github-pr-review'
+      Reporter of reviewdog command [github-pr-check,github-pr-review].
+      Default is github-pr-check.
+    default: 'github-pr-check'
   filter_mode:
     description: |
       Filtering mode for the reviewdog command [added,diff_context,file,nofilter].
       Default is added.
     default: 'added'
+  reviewdog_flags:
+    description: 'Additional reviewdog flags'
+    default: ''
+  workdir:
+    description: "The directory from which to look for and run erb_lint. Default '.'"
+    default: '.'
+  skip_install:
+    description: "Do not install erb_lint. Default: `false`"
+    default: 'false'
   use_bundler:
     description: "Run erb_lint with bundle exec. Default: `false`"
     default: 'false'
@@ -29,13 +44,18 @@ runs:
     - run: $GITHUB_ACTION_PATH/script.sh
       shell: sh
       env:
-        REVIEWDOG_VERSION: v0.14.2
+        REVIEWDOG_VERSION: v0.20.3
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
         INPUT_ERBLINT_VERSION: ${{ inputs.erblint_version }}
+        INPUT_ERBLINT_FLAGS: ${{ inputs.erblint_flags }}
+        INPUT_TOOL_NAME: ${{ inputs.tool_name }}
         INPUT_LEVEL: ${{ inputs.level }}
         INPUT_REPORTER: ${{ inputs.reporter }}
         INPUT_FILTER_MODE: ${{ inputs.filter_mode }}
+        INPUT_REVIEWDOG_FLAGS: ${{ inputs.reviewdog_flags }}
         INPUT_WORKDIR: ${{ inputs.workdir }}
+        INPUT_SKIP_INSTALL: ${{ inputs.skip_install }}
+        INPUT_USE_BUNDLER: ${{ inputs.use_bundler }}
 branding:
-  icon: check-circle
-  color: red
+  icon: 'check-circle'
+  color: 'red'
