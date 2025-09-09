@@ -12,6 +12,8 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
+git push
+git pull
 git fetch --tags
 echo "Release version: $VERSION"
 MAJOR=$(echo "$VERSION" | cut -d. -f1)
