@@ -44,7 +44,7 @@ runs:
     - run: $GITHUB_ACTION_PATH/script.sh
       shell: sh
       env:
-        REVIEWDOG_VERSION: v0.20.3
+        REVIEWDOG_VERSION: v0.21.0
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
         INPUT_ERBLINT_VERSION: ${{ inputs.erblint_version }}
         INPUT_ERBLINT_FLAGS: ${{ inputs.erblint_flags }}
