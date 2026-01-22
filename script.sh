@@ -1,13 +1,9 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
 
-if [ -n "${GITHUB_WORKSPACE}" ]
-then
-    git config --global --add safe.directory "${GITHUB_WORKSPACE}" || exit 1
-    git config --global --add safe.directory "${GITHUB_WORKSPACE}/${INPUT_WORKDIR}" || exit 1
-    cd "${GITHUB_WORKSPACE}/${INPUT_WORKDIR}" || exit 1
-fi
+set -e
+set -o pipefail
 
-export REVIEWDOG_GITHUB_API_TOKEN="${INPUT_GITHUB_TOKEN}"
+cd "${GITHUB_WORKSPACE}/${INPUT_WORKDIR}" || exit
 
 TEMP_PATH="$(mktemp -d)"
 PATH="${TEMP_PATH}:$PATH"
@@ -50,20 +46,21 @@ else
   BUNDLE_EXEC="bundle exec "
 fi
 
+export REVIEWDOG_GITHUB_API_TOKEN="${INPUT_GITHUB_TOKEN}"
+
 echo '::group:: Running erb_lint with reviewdog 🐶 ...'
-ERBLINT_REPORT_FILE="$TEMP_PATH"/erblint_report
-
 # shellcheck disable=SC2086
-${BUNDLE_EXEC}erb_lint --lint-all --format compact --allow-no-files --fail-level F --show-linter-names ${INPUT_ERBLINT_FLAGS} > "$ERBLINT_REPORT_FILE"
-reviewdog < "$ERBLINT_REPORT_FILE" \
-  -efm="%f:%l:%c: %m" \
-  -name="${INPUT_TOOL_NAME}" \
-  -reporter="${INPUT_REPORTER}" \
-  -filter-mode="${INPUT_FILTER_MODE}" \
-  -level="${INPUT_LEVEL}" \
-  "${INPUT_REVIEWDOG_FLAGS}"
+${BUNDLE_EXEC}erb_lint --lint-all --format compact --allow-no-files --fail-level F --show-linter-names ${INPUT_ERBLINT_FLAGS} \
+  | reviewdog \
+      -efm="%f:%l:%c: %m" \
+      -name="${INPUT_TOOL_NAME}" \
+      -reporter="${INPUT_REPORTER}" \
+      -filter-mode="${INPUT_FILTER_MODE}" \
+      -fail-level="${INPUT_FAIL_LEVEL}" \
+      -fail-on-error="${INPUT_FAIL_ON_ERROR}" \
+      -level="${INPUT_LEVEL}" \
+      ${INPUT_REVIEWDOG_FLAGS}
 
-exit_code=$?
+reviewdog_rc=$?
 echo '::endgroup::'
-
-exit $exit_code
+exit $reviewdog_rc

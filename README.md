@@ -1,6 +1,7 @@
 # GitHub Action: Run erb_lint with reviewdog 🐶
 
 [![](https://img.shields.io/github/license/codeur/action-erblint)](./LICENSE)
+[![reviewdog](https://github.com/codeur/action-erblint/workflows/reviewdog/badge.svg)](https://github.com/codeur/action-erblint/actions?query=workflow%3Areviewdog)
 [![depup](https://github.com/codeur/action-erblint/workflows/depup/badge.svg)](https://github.com/codeur/action-erblint/actions?query=workflow%3Adepup)
 [![release](https://github.com/codeur/action-erblint/workflows/release/badge.svg)](https://github.com/codeur/action-erblint/actions?query=workflow%3Arelease)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/codeur/action-erblint?logo=github&sort=semver)](https://github.com/codeur/action-erblint/releases)
@@ -30,17 +31,16 @@ With `reporter: github-pr-review` a comment is added to the Pull Request Convers
 
 `GITHUB_TOKEN`. Default is `${{ github.token }}`.
 
-### `erblint_version`
-
-Optional. Set erb_lint version.
-
-- empty or omit: install latest version
-- `gemfile`: install version from Gemfile (`Gemfile.lock` should be presented, otherwise it will fallback to latest bundler version)
-- version (e.g. `0.9.0`): install said version
-
 ### `erblint_flags`
 
 Optional. erb_lint flags. (erb_lint --quiet --format tabs --no-exit-on-warn --no-exit-on-error `<erblint_flags>`)
+
+### `erblint_version`
+
+Optional. Set erb_lint version. Possible values:
+- empty or omit: install latest version
+- `gemfile`: install version from Gemfile (`Gemfile.lock` should be presented, otherwise it will fallback to latest bundler version)
+- version (e.g. `0.9.0`): install said version
 
 ### `tool_name`
 
@@ -57,6 +57,17 @@ It's same as `-level` flag of reviewdog.
 Optional. Reporter of reviewdog command [`github-pr-check`, `github-pr-review`].
 The default is `github-pr-check`.
 
+### `fail_level`
+
+Optional. If set to `none`, always use exit code 0 for reviewdog. Otherwise, exit code 1 for reviewdog if it finds at least 1 issue with severity greater than or equal to the given level.
+Possible values: [`none`, `any`, `info`, `warning`, `error`].
+Default is `none`.
+
+### `fail_on_error`
+
+Optional. Deprecated, use `fail_level` instead. Exit code for reviewdog when errors are found [`true`, `false`].
+Default is `false`.
+
 ### `filter_mode`
 
 Optional. Filtering mode for the reviewdog command [`added`, `diff_context`, `file`, `nofilter`].
@@ -66,10 +77,6 @@ Default is `added`.
 
 Optional. Additional reviewdog flags.
 
-### `workdir`
-
-Optional. The directory from which to look for and run erb_lint. Default `.`.
-
 ### `skip_install`
 
 Optional. Do not install erb_lint. Default: `false`.
@@ -78,9 +85,13 @@ Optional. Do not install erb_lint. Default: `false`.
 
 Optional. Run erb_lint with bundle exec. Default: `false`.
 
+### `workdir`
+
+Optional. The directory from which to look for and run erb_lint. Default `.`.
+
 ## Example usage
 
-```yml
+```yaml
 name: reviewdog
 on: [pull_request]
 jobs:
@@ -89,17 +100,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v6
       - name: Set up Ruby
-        uses: ruby/setup-ruby@1a615958ad9d422dd932dc1d5823942ee002799f # v1.227.0
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.4.5
+          ruby-version: 3.4
       - name: erb_lint
-        uses: codeur/action-erblint@5083efd49634e26645a0736681b618ccc3fb7f14 # v2.19.2
+        uses: codeur/action-erblint@v2
         with:
-          erblint_version: 0.9.0
-          reporter: github-pr-review # Default is github-pr-check
+          erblint_version: gemfile
+          reporter: github-pr-review
 ```
+
+## Dev
+
+### Release new version
+
+1. Create a Pull Request with changes.
+2. Add one of the following labels to the PR:
+   - `bump:major`: Bump major version (e.g. v1.0.0 -> v2.0.0)
+   - `bump:minor`: Bump minor version (e.g. v1.0.0 -> v1.1.0)
+   - `bump:patch`: Bump patch version (e.g. v1.0.0 -> v1.0.1)
+3. Merge the PR.
+4. The release workflow will automatically bump the version, create a release, and update major/minor tags (e.g. v1).
 
 ## License
 
