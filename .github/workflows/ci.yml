@@ -21,5 +21,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           skip_install: 'true'
           use_bundler: 'true'
+          reporter: github-pr-annotations
+          fail_level: warning
       - run: |
           test "$(bundle exec erb_lint --version)" == "0.9.0"
