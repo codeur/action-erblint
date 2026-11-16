@@ -52,6 +52,14 @@ actions with different config.
 Optional. Report level for reviewdog [`info`, `warning`, `error`].
 It's same as `-level` flag of reviewdog.
 
+### `only_changed`
+
+Optional. Run erb_lint only on the changed (and added) files that `--lint-all` would lint, for speedup [`true`, `false`].
+The glob comes from `.erb_lint.yml` (erb_lint's default otherwise). Only for `pull_request` events.
+Above 100 such files, erb_lint lints all files. With the default `filter_mode` (`added`), the reported
+offenses are the same as with `--lint-all`.
+Default is `false`.
+
 ### `reporter`
 
 Optional. Reporter of reviewdog command [`github-pr-check`, `github-pr-review`].

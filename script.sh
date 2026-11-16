@@ -48,9 +48,45 @@ fi
 
 export REVIEWDOG_GITHUB_API_TOKEN="${INPUT_GITHUB_TOKEN}"
 
+LINT_TARGETS=(--lint-all)
+if [ "${INPUT_ONLY_CHANGED}" = "true" ] && [ -n "${BASE_REF}" ]; then
+  echo '::group:: Getting changed files list'
+
+  # check if commit is present in repository, otherwise fetch it
+  if ! git cat-file -e "${BASE_REF}"; then
+    git fetch --depth 1 origin "${BASE_REF}"
+  fi
+
+  # erb_lint lints every file given on its command line, even outside its glob: keep only the
+  # changed files (excluding deleted) that --lint-all would lint. erb_lint drops the excluded ones.
+  readarray -t CHANGED_FILES < <(
+    git diff --relative --diff-filter=d --name-only "${BASE_REF}..${HEAD_REF}" | ruby -ryaml -e '
+      config = File.exist?(".erb_lint.yml") ? YAML.safe_load_file(".erb_lint.yml", aliases: true) : nil
+      glob = (config || {})["glob"] || "**/*.html{+*,}.erb"
+      STDIN.each_line(chomp: true) { |f| puts f if File.fnmatch?(glob, f, File::FNM_PATHNAME | File::FNM_EXTGLOB) }
+    ' || kill $$
+  )
+
+  if (( ${#CHANGED_FILES[@]} == 0 )); then
+    echo "No relevant files for erb_lint, skipping"
+    echo '::endgroup::'
+    exit 0
+  fi
+
+  printf '%s\n' "${CHANGED_FILES[@]}"
+
+  if (( ${#CHANGED_FILES[@]} > 100 )); then
+    echo "More than 100 changed files (${#CHANGED_FILES[@]}), running erb_lint on all files"
+  else
+    LINT_TARGETS=("${CHANGED_FILES[@]}")
+  fi
+
+  echo '::endgroup::'
+fi
+
 echo '::group:: Running erb_lint with reviewdog 🐶 ...'
 # shellcheck disable=SC2086
-${BUNDLE_EXEC}erb_lint --lint-all --format compact --allow-no-files --fail-level F --show-linter-names ${INPUT_ERBLINT_FLAGS} \
+${BUNDLE_EXEC}erb_lint "${LINT_TARGETS[@]}" --format compact --allow-no-files --fail-level F --show-linter-names ${INPUT_ERBLINT_FLAGS} \
   | reviewdog \
       -efm="%f:%l:%c: %m" \
       -name="${INPUT_TOOL_NAME}" \
