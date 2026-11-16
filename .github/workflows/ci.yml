@@ -25,3 +25,27 @@ jobs:
           fail_level: warning
       - run: |
           test "$(bundle exec erb_lint --version)" == "0.9.0"
+  test-only-changed:
+    name: runner / erb_lint (only_changed)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: test/using_bundler
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/using_bundler/Gemfile
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4
+          bundler-cache: true
+      - name: erb_lint on the changed files only
+        uses: ./
+        with:
+          github_token: ${{ secrets.github_token }}
+          skip_install: 'true'
+          use_bundler: 'true'
+          only_changed: 'true'
+          workdir: test/using_bundler
+          reporter: github-pr-annotations
+          fail_level: warning

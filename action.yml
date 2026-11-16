@@ -31,6 +31,12 @@ inputs:
   level:
     description: 'Report level for reviewdog [info,warning,error]'
     default: 'error'
+  only_changed:
+    description: |
+      Run erb_lint only on the changed (and added) files that `--lint-all` would lint, for speedup [`true`, `false`].
+      Only for `pull_request` events. Above 100 such files, erb_lint lints all files.
+      Default is `false`.
+    default: 'false'
   reporter:
     description: |
       Reporter of reviewdog command [github-pr-check,github-pr-review].
@@ -68,12 +74,15 @@ runs:
         INPUT_FILTER_MODE: ${{ inputs.filter_mode }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
         INPUT_LEVEL: ${{ inputs.level }}
+        INPUT_ONLY_CHANGED: ${{ inputs.only_changed }}
         INPUT_REPORTER: ${{ inputs.reporter }}
         INPUT_REVIEWDOG_FLAGS: ${{ inputs.reviewdog_flags }}
         INPUT_SKIP_INSTALL: ${{ inputs.skip_install }}
         INPUT_TOOL_NAME: ${{ inputs.tool_name }}
         INPUT_USE_BUNDLER: ${{ inputs.use_bundler }}
         INPUT_WORKDIR: ${{ inputs.workdir }}
+        BASE_REF: ${{ github.event.pull_request.base.sha }}
+        HEAD_REF: ${{ github.sha }}
 branding:
   icon: 'check-circle'
   color: 'red'
